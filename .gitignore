@@ -90,3 +90,9 @@ typings/
 
 # Electron-Forge
 out/
+
+# Webstorm
+.idea/
+
+# VSCode
+.vscode/

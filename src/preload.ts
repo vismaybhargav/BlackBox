@@ -5,6 +5,13 @@ import { contextBridge, ipcRenderer } from "electron";
 
 contextBridge.exposeInMainWorld("electronAPI", {
     onCSVOpened: (callback: (data: string) => void) => {
-        ipcRenderer.on("csv-opened", (_event, data) => callback(data));
-    }
-})
+        const channel = "csv-opened";
+        const listener = (_event: Electron.IpcRendererEvent, data: string) => callback(data);
+
+        ipcRenderer.on(channel, listener);
+
+        return () => {
+            ipcRenderer.off(channel, listener);
+        };
+    },
+});

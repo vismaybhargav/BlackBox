@@ -1,6 +1,6 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router';
 import { ThemeProvider } from '@/components/theme-provider';
-import MainPage from './pages/main';
+import MainPage from '@/views/main';
 
 export default function App() {
 	return (

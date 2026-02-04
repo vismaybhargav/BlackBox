@@ -5,10 +5,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="none" {...props}>
       <SidebarHeader>
+
       </SidebarHeader>
       <SidebarContent>
       </SidebarContent>
-      <SidebarFooter></SidebarFooter>
+      <SidebarFooter>
+
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )

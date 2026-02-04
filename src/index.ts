@@ -1,41 +1,41 @@
-import Papa from "papaparse";
+import { serve } from "bun";
+import index from "./index.html";
 
-type Row = {
-	TIME_MILLIS: string,
-	TIME_ELAPSED: string,
-	PRESSURE: string,
-	ALT: string,
-	ALT_V: string,
-	PREDICTED_APOGEE: string,
-	DRAG_COEF_CMD: string,
-	DRAG_ANGLE: string,
-	FLIGHT_STATE: string
-};
+const server = serve({
+  routes: {
+    // Serve index.html for all unmatched routes.
+    "/*": index,
 
-const input = document.querySelector<HTMLInputElement>("#fileInput");
-if (!input) throw new Error("Missing fileInput element");
+    "/api/hello": {
+      async GET(req) {
+        return Response.json({
+          message: "Hello, world!",
+          method: "GET",
+        });
+      },
+      async PUT(req) {
+        return Response.json({
+          message: "Hello, world!",
+          method: "PUT",
+        });
+      },
+    },
 
-input.addEventListener("change", () => {
-	const file = input.files?.[0];
-	console.log(file);
-	if (!file) return;
+    "/api/hello/:name": async req => {
+      const name = req.params.name;
+      return Response.json({
+        message: `Hello, ${name}!`,
+      });
+    },
+  },
 
-	Papa.parse<Row>(file, {
-		header: true,
-		skipEmptyLines: true,
-		dynamicTyping: false,
-		complete: (results) => {
-			if (results.errors.length) {
-				console.log("CSV Parse Errors: ", results.errors);
-				return;
-			}
+  development: process.env.NODE_ENV !== "production" && {
+    // Enable browser hot reloading in development
+    hmr: true,
 
-			const rows = results.data;
-			const headers = results.meta.fields ?? (rows[0] ? Object.keys(rows[0]) : []);
-
-			console.log("headers: ", headers);
-			console.log("rows: ", rows);
-		}
-	}
-	);
+    // Echo console logs from the browser to the server
+    console: true,
+  },
 });
+
+console.log(`🚀 Server running at ${server.url}`);

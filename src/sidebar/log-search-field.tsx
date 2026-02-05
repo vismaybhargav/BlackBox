@@ -1,14 +1,20 @@
-import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput } from "@/components/ui/combobox";
+import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox";
 
-export default function LogSearchField() {
-    return (
-        <Combobox>
-          <ComboboxInput placeholder="Search..." className="bg-background"/>
-          <ComboboxContent>
-            <ComboboxEmpty>
-              No results found.
-            </ComboboxEmpty>
-          </ComboboxContent>
-        </Combobox>
-    )
+export default function LogSearchField(props: { headerFields?: string[] }) {
+  return (
+    <Combobox>
+      <ComboboxInput placeholder="Search..." className="bg-background" />
+      <ComboboxContent>
+        <ComboboxEmpty>
+          No results found.
+        </ComboboxEmpty>
+        <ComboboxList>
+          {props.headerFields?.map((field) => (
+            <ComboboxItem key={field} value={field}>{field}</ComboboxItem>
+          ))}
+        </ComboboxList>
+
+      </ComboboxContent>
+    </Combobox>
+  )
 }

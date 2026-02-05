@@ -4,8 +4,14 @@ import LogSearchField from "./log-search-field";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import type { CSVData } from "@/context/data-context";
+import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
+  data: CSVData | null;
+};
+
+export function AppSidebar({ data, ...props }: AppSidebarProps) {
   return (
     <Sidebar collapsible="none" {...props}>
       <SidebarHeader>
@@ -20,10 +26,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <DialogTitle>Settings</DialogTitle>
             </DialogContent>
           </Dialog>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline">
+                <
+              </Button>
+            </TooltipTrigger>
+          </Tooltip>
         </div>
-        <LogSearchField /> 
+        <LogSearchField headerFields={data?.meta.fields ?? []}/> 
       </SidebarHeader>
       <SidebarContent>
+        {data?.meta.fields?.map((field) => (
+          <div key={field} className="p-2 border-b border-border">{field}</div>
+        ))}
       </SidebarContent>
       <SidebarFooter>
       </SidebarFooter>

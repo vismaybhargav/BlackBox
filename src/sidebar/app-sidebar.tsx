@@ -2,10 +2,10 @@ import type React from "react";
 import { SidebarContent, SidebarFooter, SidebarHeader, SidebarRail, Sidebar } from "../components/ui/sidebar";
 import LogSearchField from "./log-search-field";
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { Menu, SettingsIcon, UploadIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import type { CSVData } from "@/context/data-context";
-import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
   data: CSVData | null;
@@ -15,11 +15,11 @@ export function AppSidebar({ data, ...props }: AppSidebarProps) {
   return (
     <Sidebar collapsible="none" {...props}>
       <SidebarHeader>
-        <div>
+        <div className="flex gap-1">
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline">
-                <Menu />
+                <SettingsIcon />
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -29,9 +29,12 @@ export function AppSidebar({ data, ...props }: AppSidebarProps) {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="outline">
-                <
+                <UploadIcon />
               </Button>
             </TooltipTrigger>
+            <TooltipContent>
+              Upload CSV Log
+            </TooltipContent>
           </Tooltip>
         </div>
         <LogSearchField headerFields={data?.meta.fields ?? []}/> 

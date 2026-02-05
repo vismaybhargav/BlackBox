@@ -6,6 +6,17 @@ import { Field, FieldDescription, FieldLabel } from "./components/ui/field";
 import { Input } from "./components/ui/input";
 import { useState } from "react";
 import type { ParseResult } from "papaparse";
+import UplotReact from "uplot-react";
+import 'uplot/dist/uPlot.min.css';
+
+let options: uPlot.Options = {
+  title: "",
+  id: "continous",
+  series: [
+    {},
+    
+  ]
+}
 
 export default function App() {
   const { readString } = usePapaParse();
@@ -31,9 +42,7 @@ export default function App() {
                   header: true,
                   dynamicTyping: true,
                   complete: (results) => {
-                    console.log("Parsed Results:", results);
                     setData(results);
-                    setLoadingFile(true);
                   },
                   error: (error) => {
                     console.error("Error parsing CSV:", error);
@@ -44,6 +53,7 @@ export default function App() {
             <FieldDescription>Select a CSV File</FieldDescription>
           </Field>
         </div>
+        <UplotReact options={} data={}></UplotReact>
       </main>
     </SidebarProvider>
   );

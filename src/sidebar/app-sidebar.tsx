@@ -40,7 +40,7 @@ export function AppSidebar({ data, ...props }: AppSidebarProps) {
         <LogSearchField headerFields={data?.meta.fields ?? []}/> 
       </SidebarHeader>
       <SidebarContent>
-        {data?.meta.fields?.map((field) => (
+        {data?.meta.fields?.map((field: string) => (
           <div key={field} className="p-2 border-b border-border">{field}</div>
         ))}
       </SidebarContent>

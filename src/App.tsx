@@ -11,14 +11,29 @@ import 'uplot/dist/uPlot.min.css';
 import type { AlignedData } from "uplot";
 import uPlot from "uplot";
 
+function extractAxisData(data: unknown, key: string): number[] {
+  if(!Array.isArray(data)) {
+    throw new Error("data must be an array of objects");
+  }
+
+  return data.map((item) => {
+    if (typeof item === "object" && item && key in item) {
+      const value = item[key];
+      if (typeof value === "number") {
+        return value;
+      }
+    }
+    return NaN;
+  }).filter((value): value is number => !isNaN(value));
+}
+
 export default function App() {
   const { readString } = usePapaParse();
   const [loadedFile, setLoadingFile] = useState(false);
   const [data, setData] = useState<ParseResult<unknown> | null>(null);
 
   const [options, setOptions] = useState<uPlot.Options>(
-    useMemo(
-      () => ({
+    {
         title: "",
         width: 800,
         height: 600,
@@ -28,10 +43,9 @@ export default function App() {
           },
           {
             show: true,
-            label: "time",
+            label: "alt",
             stroke: "red",
             width: 1,
-            dash: [10, 5]
           }
         ],
         scales: {
@@ -39,18 +53,9 @@ export default function App() {
             time: false
           }
         }
-      }),
-      []
-    )
-  );
+      });
 
-  const [chartData, setChartData] = useState<uPlot.AlignedData>(
-    useMemo<uPlot.AlignedData>(() => {
-      const xData = data?.data[0] as number[] || [];
-      const yData = data?.data[3] as number[] || [];
-      return [xData, yData];
-    }, [data])
-  );
+  const [chartData, setChartData] = useState<uPlot.AlignedData>([])
 
   return (
     <SidebarProvider>
@@ -70,7 +75,12 @@ export default function App() {
                 readString(fileContent, {
                   header: true,
                   dynamicTyping: true,
-                  complete: (results) => {
+                  complete: (results: ParseResult<object>) => {
+                    const xData = extractAxisData(results.data, "timeMillis");
+                    const yData = extractAxisData(results.data, "alt");
+
+                    setChartData([xData, yData]);
+
                     setData(results);
                   },
                   error: (error) => {

@@ -8,10 +8,13 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import { SettingsProvider } from "./context/settings-context";
 
 const elem = document.getElementById("root")!;
 const app = (
-  <App />
+  <SettingsProvider>
+    <App />
+  </SettingsProvider>
 );
 
 if (import.meta.hot) {

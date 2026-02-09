@@ -2,13 +2,14 @@ import type React from "react";
 import { SidebarContent, SidebarFooter, SidebarHeader, SidebarRail, Sidebar } from "../components/ui/sidebar";
 import LogSearchField from "./log-search-field";
 import { Button } from "@/components/ui/button";
-import { Menu, SettingsIcon, UploadIcon } from "lucide-react";
+import { SettingsIcon, UploadIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import type { CSVData } from "@/context/data-context";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import type { ParseResult } from "papaparse";
+import SettingsMenu from "./settings-menu";
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
-  data: CSVData | null;
+  data: ParseResult<unknown> | null;
 };
 
 export function AppSidebar({ data, ...props }: AppSidebarProps) {
@@ -24,6 +25,7 @@ export function AppSidebar({ data, ...props }: AppSidebarProps) {
             </DialogTrigger>
             <DialogContent>
               <DialogTitle>Settings</DialogTitle>
+              <SettingsMenu />
             </DialogContent>
           </Dialog>
           <Tooltip>

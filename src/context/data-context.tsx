@@ -1,18 +1,24 @@
 import type { ParseResult } from "papaparse";
-import { createContext, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 
 type DataContextValue = {
-  data: ParseResult<object> | null;
-  setData: (data: ParseResult<object> | null) => void;  
+  data: ParseResult<unknown> | null;
+  setData: React.Dispatch<React.SetStateAction<ParseResult<unknown> | null>>;
 };
 
-export const DataContext = createContext<DataContextValue | null>({
-  data: null,
-  setData: () => {},
-});
+const DataContext = createContext<DataContextValue | undefined>(undefined);
+
+export function useDataContext() {
+  const context = useContext(DataContext);
+  if (!context) {
+    throw new Error("useDataContext must be used within a DataProvider");
+  }
+  return context;
+}
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
-  const [data, setData] = useState<ParseResult<object> | null>(null);
+  const [data, setData] = useState<ParseResult<unknown> | null>(null);
+  const value = useMemo(() => ({ data, setData }), [data]);
 
-  return <DataContext.Provider value={{ data, setData }}>{children}</DataContext.Provider>;
+  return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 }

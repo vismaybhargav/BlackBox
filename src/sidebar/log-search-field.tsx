@@ -13,7 +13,6 @@ export default function LogSearchField(props: { headerFields?: string[] }) {
             <ComboboxItem key={field} value={field}>{field}</ComboboxItem>
           ))}
         </ComboboxList>
-
       </ComboboxContent>
     </Combobox>
   )

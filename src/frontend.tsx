@@ -9,12 +9,16 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import { SettingsProvider } from "./context/settings-context";
+import { DataProvider } from "./context/data-context";
 
 const elem = document.getElementById("root")!;
 const app = (
-  <SettingsProvider>
-    <App />
-  </SettingsProvider>
+  <DataProvider>
+    <SettingsProvider>
+      <App />
+    </SettingsProvider>
+  </DataProvider>
+  
 );
 
 if (import.meta.hot) {

@@ -7,12 +7,15 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { ParseResult } from "papaparse";
 import SettingsMenu from "./settings-menu";
+import { useRef } from "react";
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
   data: ParseResult<unknown> | null;
 };
 
 export function AppSidebar({ data, ...props }: AppSidebarProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   return (
     <Sidebar collapsible="none" {...props}>
       <SidebarHeader>
@@ -30,9 +33,20 @@ export function AppSidebar({ data, ...props }: AppSidebarProps) {
           </Dialog>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline">
-                <UploadIcon />
-              </Button>
+              <div>
+                <input
+                  ref={inputRef}
+                  type="file"
+                  className="hidden"
+                  accept=".csv"
+                />
+                <Button 
+                  variant="outline" 
+                  onClick={() => inputRef.current?.click()}
+                >
+                  <UploadIcon />
+                </Button>
+              </div>
             </TooltipTrigger>
             <TooltipContent>
               Upload CSV Log

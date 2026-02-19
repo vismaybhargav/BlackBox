@@ -5,16 +5,13 @@ import { Button } from "@/components/ui/button";
 import { SettingsIcon, UploadIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import type { ParseResult } from "papaparse";
 import SettingsMenu from "./settings-menu";
 import { useRef } from "react";
+import { useDataContext } from "@/context/data-context";
+import { usePapaParse } from "react-papaparse";
 
-type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
-  data: ParseResult<unknown> | null;
-};
-
-export function AppSidebar({ data, ...props }: AppSidebarProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data, setData } = useDataContext();
 
   return (
     <Sidebar collapsible="none" {...props}>
@@ -33,20 +30,7 @@ export function AppSidebar({ data, ...props }: AppSidebarProps) {
           </Dialog>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div>
-                <input
-                  ref={inputRef}
-                  type="file"
-                  className="hidden"
-                  accept=".csv"
-                />
-                <Button 
-                  variant="outline" 
-                  onClick={() => inputRef.current?.click()}
-                >
-                  <UploadIcon />
-                </Button>
-              </div>
+              <UploadLogButton /> 
             </TooltipTrigger>
             <TooltipContent>
               Upload CSV Log
@@ -65,4 +49,35 @@ export function AppSidebar({ data, ...props }: AppSidebarProps) {
       <SidebarRail />
     </Sidebar>
   )
+}
+
+function UploadLogButton() {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const { readString } = usePapaParse();
+  const { data, setData } = useDataContext(); 
+  
+  const handleParse = async (e: InputEvent<HTMLInputElement>) => {
+    const file = e.currentTarget.files?.[0];
+    if (!file) return;
+    const fileContent = await file.text();
+    console.log(fileContent);
+  };
+  
+  return (
+    <div>
+      <input
+        ref={inputRef}
+        type="file"
+        className="hidden"
+        accept=".csv"
+        onInput={handleParse}
+      />
+      <Button 
+        variant="outline" 
+        onClick={() => inputRef.current?.click()}
+      >
+        <UploadIcon />
+      </Button>
+    </div>
+  );
 }

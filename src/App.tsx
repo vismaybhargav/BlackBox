@@ -60,7 +60,7 @@ export default function App() {
   return (
     <SidebarProvider>
       <main className="flex grow">
-        <AppSidebar data={data} />
+        <AppSidebar />
         <div>
           <Field>
             <FieldLabel htmlFor="csvInput">Open CSV File</FieldLabel>

@@ -1,26 +1,26 @@
-import { usePapaParse } from "react-papaparse";
 import { AppSidebar } from "./sidebar/app-sidebar";
 import { SidebarProvider } from "./components/ui/sidebar";
 import "./index.css";
-import { Field, FieldDescription, FieldLabel } from "./components/ui/field";
-import { Input } from "./components/ui/input";
-import { useMemo, useState } from "react";
-import type { ParseResult } from "papaparse";
+import { useCallback, useMemo, useState } from "react";
 import UplotReact from "uplot-react";
 import 'uplot/dist/uPlot.min.css';
-import type { AlignedData } from "uplot";
 import uPlot from "uplot";
+import { useDataContext } from "./context/data-context";
+import type { ParseResult } from "papaparse";
 
-function extractAxisData(data: unknown, key: string): number[] {
-  if(!Array.isArray(data)) {
-    throw new Error("data must be an array of objects");
-  }
+function extractAxisData(data: Array<Record<string, unknown>>, key: string): number[] {
+  return data.map((item, index) => {
+    if(item[key] === undefined || item[key] === null) {
+      console.warn(`Key "${key}" is missing in item:`, item, `at index ${index}. Returning NaN for this entry.`);
+      console.dir(data[index], { depth: null });
+    }
 
-  return data.map((item) => {
     if (typeof item === "object" && item && key in item) {
       const value = item[key];
       if (typeof value === "number") {
         return value;
+      } else {
+        console.warn(`Expected a number for key "${key}", but got: ${value} as (${typeof value}). DID YOU SET DYNAMIC TYPING?`);  
       }
     }
     return NaN;
@@ -28,10 +28,6 @@ function extractAxisData(data: unknown, key: string): number[] {
 }
 
 export default function App() {
-  const { readString } = usePapaParse();
-  const [loadedFile, setLoadingFile] = useState(false);
-  const [data, setData] = useState<ParseResult<unknown> | null>(null);
-
   const [options, setOptions] = useState<uPlot.Options>(
     {
         title: "",
@@ -55,43 +51,26 @@ export default function App() {
         }
       });
 
-  const [chartData, setChartData] = useState<uPlot.AlignedData>([])
+  const { data, setData } = useDataContext();
+
+  const convertToUplotData = useCallback((incomingData: ParseResult<unknown> | undefined): uPlot.AlignedData => {
+    if (!incomingData || !incomingData.data || !Array.isArray(incomingData.data)) {
+      return [[], []];
+    }
+
+    const xData = extractAxisData(incomingData.data as Array<Record<string, unknown>>, "timeMillis");
+    const yData = extractAxisData(incomingData.data as Array<Record<string, unknown>>, "alt");
+    return [xData, yData];
+  }, []);
+
+  const chartData = useMemo(() => {
+    return convertToUplotData(data as ParseResult<unknown> | undefined);
+  }, [data]);
 
   return (
     <SidebarProvider>
       <main className="flex grow">
         <AppSidebar />
-        <div>
-          <Field>
-            <FieldLabel htmlFor="csvInput">Open CSV File</FieldLabel>
-            <Input
-              id="csvInput"
-              type="file"
-              onInput={async (e) => {
-                const file = e.currentTarget.files?.[0];
-                if (!file) return;
-                const fileContent = await file.text();
-
-                readString(fileContent, {
-                  header: true,
-                  dynamicTyping: true,
-                  complete: (results: ParseResult<object>) => {
-                    const xData = extractAxisData(results.data, "timeMillis");
-                    const yData = extractAxisData(results.data, "alt");
-
-                    setChartData([xData, yData]);
-
-                    setData(results);
-                  },
-                  error: (error) => {
-                    console.error("Error parsing CSV:", error);
-                  },
-                });
-              }}
-            />
-            <FieldDescription>Select a CSV File</FieldDescription>
-          </Field>
-        </div>
         <UplotReact options={options} data={chartData}></UplotReact>
       </main>
     </SidebarProvider>

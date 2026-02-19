@@ -17,7 +17,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="none" {...props}>
       <SidebarHeader>
         <div className="flex gap-1 w-full ">
-          <h1><span className="text-2xl font-bold">Black</span><span className="text-2xl font-semibold">Box</span></h1>
+          <h1><span className="text-2xl font-bold tasa-orbiter-font">Black</span><span className="text-2xl tasa-orbiter-font">Box</span></h1>
           <BoxIcon size={36} fill="true" stroke="white"/> 
           <Dialog>
             <DialogTrigger asChild>

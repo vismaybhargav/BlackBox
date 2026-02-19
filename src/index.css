@@ -31,3 +31,10 @@
     animation: none !important;
   }
 }
+
+.tasa-orbiter-font {
+  font-family: "TASA Orbiter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 900;
+  font-style: normal;
+}

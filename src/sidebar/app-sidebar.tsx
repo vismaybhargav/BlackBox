@@ -1,6 +1,6 @@
 import type React from "react";
 import { SidebarContent, SidebarFooter, SidebarHeader, SidebarRail, Sidebar } from "../components/ui/sidebar";
-import LogSearchField from "./log-search-field";
+import TopicSearchField from "./topic-search-field";
 import { Button } from "@/components/ui/button";
 import { BoxIcon, SettingsIcon, UploadIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -16,8 +16,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="none" {...props}>
       <SidebarHeader>
-        <div className="flex gap-1 w-full ">
-          <h1><span className="text-2xl font-bold tasa-orbiter-font">Black</span><span className="text-2xl tasa-orbiter-font">Box</span></h1>
+        <div className="flex gap-1 w-full items-center">
+          <h1 className="text-2xl font-bold tasa-orbiter-font align-baseline">BlackBox</h1>
           <BoxIcon size={36} fill="true" stroke="white"/> 
           <Dialog>
             <DialogTrigger asChild>
@@ -39,12 +39,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </TooltipContent>
           </Tooltip>
         </div>
-        <LogSearchField headerFields={data?.meta.fields ?? []}/> 
+        <TopicSearchField headerFields={data?.meta.fields ?? []}/> 
       </SidebarHeader>
       <SidebarContent>
-        {data?.meta.fields?.map((field: string) => (
-          <div key={field} className="p-2 border">{field}</div>
-        ))}
+        <div className="flex-col">
+          <h1 className="justify-self-center">Topics</h1>
+          {data?.meta.fields?.map((field: string) => (
+            <div key={field} className="p-2 border">{field}</div>
+          ))}
+        </div>
+        
       </SidebarContent>
       <SidebarFooter>
       </SidebarFooter>

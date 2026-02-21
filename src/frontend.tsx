@@ -10,15 +10,17 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import { SettingsProvider } from "./context/settings-context";
 import { DataProvider } from "./context/data-context";
+import { DragDropProvider } from "@dnd-kit/react";
 
 const elem = document.getElementById("root")!;
 const app = (
-  <DataProvider>
-    <SettingsProvider>
-      <App />
-    </SettingsProvider>
-  </DataProvider>
-  
+  <DragDropProvider>
+    <DataProvider>
+      <SettingsProvider>
+        <App />
+      </SettingsProvider>
+    </DataProvider>
+  </DragDropProvider>
 );
 
 if (import.meta.hot) {

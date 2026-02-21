@@ -1,6 +1,6 @@
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox";
 
-export default function LogSearchField(props: { headerFields?: string[] }) {
+export default function TopicSearchField(props: { headerFields?: string[] }) {
   return (
     <Combobox>
       <ComboboxInput placeholder="Search..." className="bg-background" />

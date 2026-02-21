@@ -7,6 +7,9 @@ import 'uplot/dist/uPlot.min.css';
 import uPlot from "uplot";
 import { useDataContext } from "./context/data-context";
 import type { ParseResult } from "papaparse";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "./components/ui/resizable";
+import TopicDropZone from "./logged-value-holder/droppable-area";
+import ResponsivePlot from "./responsive-chart";
 
 function extractAxisData(data: Array<Record<string, unknown>>, key: string): number[] {
   return data.map((item, index) => {
@@ -31,7 +34,7 @@ export default function App() {
   const [options, setOptions] = useState<uPlot.Options>(
     {
         title: "",
-        width: 800,
+        width: 1600,
         height: 600,
         series: [
           {
@@ -71,7 +74,17 @@ export default function App() {
     <SidebarProvider>
       <main className="flex grow">
         <AppSidebar />
-        <UplotReact options={options} data={chartData}></UplotReact>
+        <ResizablePanelGroup 
+          orientation="vertical"
+        >
+          <ResizablePanel defaultSize="75%">
+            <UplotReact options={options} data={chartData}></UplotReact>
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel defaultSize="25%">
+            <TopicDropZone />
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </main>
     </SidebarProvider>
   );

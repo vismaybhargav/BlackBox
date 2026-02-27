@@ -6,7 +6,7 @@ import { useContext } from "react"
 
 export default function SettingsMenu() {
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 box">
             {typedEntries(SETTINGS).map(([key, option]) => {
                 if(option.type === "string") {
                     return <SettingSelectMenuItem key={key} settingKey={key} />
@@ -31,6 +31,7 @@ function SettingSelectMenuItem<K extends keyof SettingOptions>({ settingKey }: {
             <Select 
                 defaultValue={currentSetting}
                 onValueChange={(value) => setSetting(settingKey, value)}
+                disabled={true}
             >
                 <SelectTrigger id={settingKey}>
                     <SelectValue>

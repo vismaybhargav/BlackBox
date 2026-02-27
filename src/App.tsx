@@ -36,13 +36,17 @@ export default function App() {
         title: "",
         width: 1600,
         height: 600,
+        legend: {
+          show: true,
+          live: true,
+        },
         series: [
           {
             label: "time"
           },
           {
             show: true,
-            label: "alt",
+            label: "altV",
             stroke: "red",
             width: 1,
           }
@@ -62,7 +66,7 @@ export default function App() {
     }
 
     const xData = extractAxisData(incomingData.data as Array<Record<string, unknown>>, "timeMillis");
-    const yData = extractAxisData(incomingData.data as Array<Record<string, unknown>>, "alt");
+    const yData = extractAxisData(incomingData.data as Array<Record<string, unknown>>, "flightState");
     return [xData, yData];
   }, []);
 
@@ -72,17 +76,23 @@ export default function App() {
 
   return (
     <SidebarProvider>
-      <main className="flex grow">
+      <main className="flex w-full">
         <AppSidebar />
         <ResizablePanelGroup 
           orientation="vertical"
+          className="w-full"
         >
-          <ResizablePanel defaultSize="75%">
-            <UplotReact options={options} data={chartData}></UplotReact>
+          <ResizablePanel defaultSize="75%" className="min-h-0" minSize="30%">
+            {/* <UplotReact options={options} data={chartData}></UplotReact> */}
+            <div className="h-full min-h-0 w-full">
+              <ResponsivePlot options={options} data={chartData} />
+            </div>
           </ResizablePanel>
           <ResizableHandle />
-          <ResizablePanel defaultSize="25%">
-            <TopicDropZone />
+          <ResizablePanel defaultSize="25%" className="min-h-0">
+            <div className="h-full min-h-0 overflow-auto">
+              <TopicDropZone />
+            </div>
           </ResizablePanel>
         </ResizablePanelGroup>
       </main>

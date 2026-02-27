@@ -53,8 +53,8 @@ export default function ResponsivePlot(
             const h = Math.max(0, Math.floor(rect.height));
 
             if (w === plot.width && h === plot.height) return;
-
-            plot.setSize({ width: w, height: h });
+            
+            plot.setSize({ width: w, height: h - 50 });
         });
 
         resizeToContainer();

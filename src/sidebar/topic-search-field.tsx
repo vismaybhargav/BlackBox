@@ -3,7 +3,7 @@ import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, 
 export default function TopicSearchField(props: { headerFields?: string[] }) {
   return (
     <Combobox>
-      <ComboboxInput placeholder="Search..." className="bg-background" />
+      <ComboboxInput placeholder="Search..." className="bg-background" disabled={true} />
       <ComboboxContent>
         <ComboboxEmpty>
           No results found.

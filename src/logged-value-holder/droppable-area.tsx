@@ -40,7 +40,7 @@ export function ContinousTopicDropZone({ id }: { id: string }) {
     });
 
     return (
-        <div ref={ref} className="">
+        <div ref={ref} className="flex h-full bg-secondary">
             <Empty>
                 <EmptyHeader>
                     <EmptyMedia variant="icon">
@@ -58,7 +58,7 @@ export function DiscreteTopicDropZone({ id }: { id: string }) {
     });
 
     return (
-        <div ref={ref} className="">
+        <div ref={ref} className="flex h-full bg-secondary">
             <Empty>
                 <EmptyHeader>
                     <EmptyMedia variant="icon">

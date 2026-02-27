@@ -9,6 +9,7 @@ import SettingsMenu from "./settings-menu";
 import { useRef } from "react";
 import { useDataContext } from "@/context/data-context";
 import { usePapaParse } from "react-papaparse";
+import { useDraggable } from "@dnd-kit/react";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data, setData } = useDataContext();
@@ -39,13 +40,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </TooltipContent>
           </Tooltip>
         </div>
-        <TopicSearchField headerFields={data?.meta.fields ?? []}/> 
+        <div className="box">
+          <TopicSearchField headerFields={data?.meta.fields ?? []} /> 
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <div className="flex-col">
           <h1 className="justify-self-center">Topics</h1>
           {data?.meta.fields?.map((field: string) => (
-            <div key={field} className="p-2 border">{field}</div>
+            <SidebarTopicItem key={field} id={field} field={field} />
           ))}
         </div>
         
@@ -54,6 +57,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
+  )
+}
+
+function SidebarTopicItem({ id, field,  }: { id: string, field: string }) {
+  const { ref } = useDraggable({
+    id
+  });
+
+  return (
+    <div ref={ref} className="p-2 border">{field}</div>
   )
 }
 

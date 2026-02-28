@@ -13,7 +13,7 @@ export default function TopicDropZone() {
                     defaultSize="33.33%"
                     disabled={true}
                 >
-                    <ContinousTopicDropZone id="continous-topic-drop-zone-axis-1" />
+                    <ContinuousTopicDropZone id="continous-topic-drop-zone-axis-1" />
                 </ResizablePanel>
                 <ResizableHandle />
                 <ResizablePanel
@@ -27,14 +27,14 @@ export default function TopicDropZone() {
                     defaultSize="33.33%"
                     disabled={true}
                 >
-                    <ContinousTopicDropZone id="continous-topic-drop-zone-axis-2" />
+                    <ContinuousTopicDropZone id="continous-topic-drop-zone-axis-2" />
                 </ResizablePanel>
             </ResizablePanelGroup>
         </div>
     )
 }
 
-export function ContinousTopicDropZone({ id }: { id: string }) {
+export function ContinuousTopicDropZone({ id }: { id: string }) {
     const { ref } = useDroppable({
         id
     });

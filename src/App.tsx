@@ -46,8 +46,20 @@ export default function App() {
           },
           {
             show: true,
-            label: "altV",
+            label: "predictedApogee",
             stroke: "red",
+            width: 1,
+          },
+          {
+            show: true,
+            label: "dragAngle",
+            stroke: "blue",
+            width: 1,
+          },
+          {
+            show: true,
+            label: "alt",
+            stroke: "green",
             width: 1,
           }
         ],
@@ -66,8 +78,10 @@ export default function App() {
     }
 
     const xData = extractAxisData(incomingData.data as Array<Record<string, unknown>>, "timeMillis");
-    const yData = extractAxisData(incomingData.data as Array<Record<string, unknown>>, "flightState");
-    return [xData, yData];
+    const yData = extractAxisData(incomingData.data as Array<Record<string, unknown>>, "predictedApogee");
+    const otherYData = extractAxisData(incomingData.data as Array<Record<string, unknown>>, "dragAngle");
+    const altData = extractAxisData(incomingData.data as Array<Record<string, unknown>>, "alt");
+    return [xData, yData, otherYData, altData];
   }, []);
 
   const chartData = useMemo(() => {

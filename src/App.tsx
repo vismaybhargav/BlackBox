@@ -49,7 +49,7 @@ export default function App() {
             label: "altV",
             stroke: "red",
             width: 1,
-          }
+          },
         ],
         scales: {
           x: {
@@ -66,7 +66,7 @@ export default function App() {
     }
 
     const xData = extractAxisData(incomingData.data as Array<Record<string, unknown>>, "timeMillis");
-    const yData = extractAxisData(incomingData.data as Array<Record<string, unknown>>, "flightState");
+    const yData = extractAxisData(incomingData.data as Array<Record<string, unknown>>, "alt");
     return [xData, yData];
   }, []);
 

@@ -1,5 +1,5 @@
 import type { ParseResult } from "papaparse";
-import { createContext, useContext, useMemo, useState } from "react";
+import React, { createContext, useContext, useMemo, useState } from "react";
 
 type DataContextValue = {
   data: ParseResult<unknown> | null;

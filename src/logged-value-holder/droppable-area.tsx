@@ -34,7 +34,6 @@ export function ContinousTopicDropZone({ id }: { id: string }) {
     id,
   });
 
-  const { topicData } = useContext(TopicContext);
 
   return (
     <div ref={ref} className="flex h-full bg-green-50">

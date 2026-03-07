@@ -64,6 +64,18 @@ export default function App() {
         stroke: "red",
         width: 1,
       },
+      {
+        show: true,
+        label: "alt",
+        stroke: "blue",
+        width: 1,
+      },
+      {
+        show: true,
+        label: "dragFlapDeployed",
+        stroke: "green",
+        width: 1,
+      }
     ],
     scales: {
       x: {
@@ -90,9 +102,17 @@ export default function App() {
       );
       const yData = extractAxisData(
         incomingData.data as Array<Record<string, unknown>>,
+        "predictedApogee",
+      );
+      const yData1 = extractAxisData(
+        incomingData.data as Array<Record<string, unknown>>,
         "alt",
       );
-      return [xData, yData];
+       const yData2 = extractAxisData(
+        incomingData.data as Array<Record<string, unknown>>,
+        "dragFlapDeployed",
+      );
+      return [xData, yData, yData1, yData2];
     },
     [],
   );

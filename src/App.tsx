@@ -62,19 +62,33 @@ export default function App() {
         show: true,
         label: "predictedApogee",
         stroke: "red",
+        scale: "y",
         width: 1,
       },
       {
         show: true,
         label: "alt",
+        scale: "y",
         stroke: "blue",
         width: 1,
       },
       {
         show: true,
         label: "dragFlapDeployed",
+        scale: "y2",
         stroke: "green",
         width: 1,
+      }
+    ],
+    axes: [
+      {},
+      {
+        scale: "y",
+        side: 3,
+      },
+      {
+        scale: "y2",
+        side: 1
       }
     ],
     scales: {

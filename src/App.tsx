@@ -88,7 +88,8 @@ export default function App() {
       },
       {
         scale: "y2",
-        side: 1
+        side: 1,
+        grid: { show: false }
       }
     ],
     scales: {

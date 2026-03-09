@@ -1,8 +1,7 @@
 import { AppSidebar } from "./sidebar/app-sidebar";
 import { SidebarProvider } from "./components/ui/sidebar";
 import "./index.css";
-import { useCallback, useMemo, useState } from "react";
-import UplotReact from "uplot-react";
+import { useCallback, useMemo } from "react";
 import "uplot/dist/uPlot.min.css";
 import uPlot from "uplot";
 import { useDataContext } from "./context/data-context";
@@ -14,6 +13,7 @@ import {
 } from "./components/ui/resizable";
 import TopicDropZone from "./logged-value-holder/droppable-area";
 import ResponsivePlot from "./responsive-chart";
+import { useTopicContext } from "./context/topic-context";
 
 function extractAxisData(
   data: Array<Record<string, unknown>>,
@@ -46,95 +46,118 @@ function extractAxisData(
 }
 
 export default function App() {
-  const [options, setOptions] = useState<uPlot.Options>({
-    title: "",
-    width: 1600,
-    height: 600,
-    legend: {
-      show: true,
-      live: true,
-    },
-    series: [
-      {
-        label: "time",
-      },
-      {
-        show: true,
-        label: "predictedApogee",
-        stroke: "red",
-        scale: "y",
-        width: 1,
-      },
-      {
-        show: true,
-        label: "alt",
-        scale: "y",
-        stroke: "blue",
-        width: 1,
-      },
-      {
-        show: true,
-        label: "dragFlapDeployed",
-        scale: "y2",
-        stroke: "green",
-        width: 1,
-      }
-    ],
-    axes: [
-      {},
-      {
-        scale: "y",
-        side: 3,
-      },
-      {
-        scale: "y2",
-        side: 1,
-        grid: { show: false }
-      }
-    ],
-    scales: {
-      x: {
-        time: false,
-      },
-    },
-  });
-
-  const { data, setData } = useDataContext();
+  const { data } = useDataContext();
+  const { topicData } = useTopicContext();
 
   const convertToUplotData = useCallback(
-    (incomingData: ParseResult<unknown> | undefined): uPlot.AlignedData => {
+    (
+      incomingData: ParseResult<unknown> | undefined,
+      axes: ReturnType<typeof useTopicContext>["topicData"],
+    ): uPlot.AlignedData => {
       if (
         !incomingData ||
         !incomingData.data ||
         !Array.isArray(incomingData.data)
       ) {
-        return [[], []];
+        const emptySeriesCount =
+          1 +
+          axes.find((entry) => entry.axis === "left")!.topics.length +
+          axes.find((entry) => entry.axis === "right")!.topics.length;
+
+        return Array.from({ length: emptySeriesCount }, () => []) as unknown as uPlot.AlignedData;
       }
 
-      const xData = extractAxisData(
-        incomingData.data as Array<Record<string, unknown>>,
-        "timeMillis",
-      );
-      const yData = extractAxisData(
-        incomingData.data as Array<Record<string, unknown>>,
-        "predictedApogee",
-      );
-      const yData1 = extractAxisData(
-        incomingData.data as Array<Record<string, unknown>>,
-        "alt",
-      );
-       const yData2 = extractAxisData(
-        incomingData.data as Array<Record<string, unknown>>,
-        "dragFlapDeployed",
-      );
-      return [xData, yData, yData1, yData2];
+      const rows = incomingData.data as Array<Record<string, unknown>>;
+      const discreteAxis = axes.find((entry) => entry.axis === "discrete");
+      const leftAxis = axes.find((entry) => entry.axis === "left");
+      const rightAxis = axes.find((entry) => entry.axis === "right");
+      const xTopic = discreteAxis?.topics[0] ?? "timeMillis";
+      const plottedTopics = [
+        ...(leftAxis?.topics ?? []),
+        ...(rightAxis?.topics ?? []),
+      ];
+
+      return [
+        extractAxisData(rows, xTopic),
+        ...plottedTopics.map((topic) => extractAxisData(rows, topic)),
+      ];
     },
     [],
   );
 
   const chartData = useMemo(() => {
-    return convertToUplotData(data as ParseResult<unknown> | undefined);
-  }, [data]);
+    return convertToUplotData(
+      data as ParseResult<unknown> | undefined,
+      topicData,
+    );
+  }, [convertToUplotData, data, topicData]);
+
+  const options = useMemo((): uPlot.Options => {
+    const discreteAxis = topicData.find((entry) => entry.axis === "discrete");
+    const leftAxis = topicData.find((entry) => entry.axis === "left");
+    const rightAxis = topicData.find((entry) => entry.axis === "right");
+    const xTopic = discreteAxis?.topics[0] ?? "timeMillis";
+    const leftTopics = leftAxis?.topics ?? [];
+    const rightTopics = rightAxis?.topics ?? [];
+    const palette = [
+      "#ef4444",
+      "#3b82f6",
+      "#10b981",
+      "#f59e0b",
+      "#8b5cf6",
+      "#ec4899",
+    ];
+
+    return {
+      title: "",
+      width: 1600,
+      height: 600,
+      legend: {
+        show: true,
+        live: true,
+      },
+      series: [
+        {
+          label: xTopic,
+        },
+        ...leftTopics.map((topic, index) => ({
+          show: true,
+          label: topic,
+          scale: "y",
+          stroke: palette[index % palette.length],
+          width: 1,
+        })),
+        ...rightTopics.map((topic, index) => ({
+          show: true,
+          label: topic,
+          scale: "y2",
+          stroke: palette[(leftTopics.length + index) % palette.length],
+          width: 1,
+        })),
+      ],
+      axes: [
+        {
+          label: xTopic,
+        },
+        {
+          scale: "y",
+          side: 3,
+          label: leftTopics.join(", "),
+        },
+        {
+          scale: "y2",
+          side: 1,
+          label: rightTopics.join(", "),
+          grid: { show: false },
+        },
+      ],
+      scales: {
+        x: {
+          time: false,
+        },
+      },
+    };
+  }, [topicData]);
 
   return (
     <SidebarProvider>

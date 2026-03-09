@@ -6,21 +6,85 @@
  */
 
 import { StrictMode } from "react";
+import type { ComponentProps } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import { SettingsProvider } from "./context/settings-context";
 import { DataProvider } from "./context/data-context";
 import { DragDropProvider } from "@dnd-kit/react";
+import {
+  TopicContextProvider,
+  type AxisId,
+  defaultTopicData,
+  useTopicContext,
+} from "./context/topic-context";
+
+function AppProviders() {
+  const { setTopicData } = useTopicContext();
+
+  function handleDragEnd(
+    event: Parameters<
+      NonNullable<ComponentProps<typeof DragDropProvider>["onDragEnd"]>
+    >[0],
+  ) {
+    const { operation, canceled } = event;
+
+    if (canceled) {
+      return;
+    }
+
+    const draggedTopic = operation.source?.data?.topic;
+    const targetAxis = operation.target?.data?.axis as AxisId | undefined;
+
+    if (typeof draggedTopic !== "string" || targetAxis === undefined) {
+      return;
+    }
+
+    setTopicData((currentTopicData) => {
+      const nextTopicData = currentTopicData.length > 0 ? currentTopicData : defaultTopicData;
+      const withoutTopic = nextTopicData.map((entry) => ({
+        ...entry,
+        topics: entry.topics.filter((topic) => topic !== draggedTopic),
+      }));
+
+      return withoutTopic.map((entry) => {
+        if (entry.axis !== targetAxis) {
+          return entry;
+        }
+
+        if (entry.axis === "discrete") {
+          return {
+            ...entry,
+            topics: [draggedTopic],
+          };
+        }
+
+        return {
+          ...entry,
+          topics: [...entry.topics, draggedTopic],
+        };
+      });
+    });
+  }
+
+  return (
+    <DragDropProvider onDragEnd={handleDragEnd}>
+      <DataProvider>
+        <SettingsProvider>
+          <App />
+        </SettingsProvider>
+      </DataProvider>
+    </DragDropProvider>
+  );
+}
 
 const elem = document.getElementById("root")!;
 const app = (
-  <DragDropProvider>
-    <DataProvider>
-      <SettingsProvider>
-        <App />
-      </SettingsProvider>
-    </DataProvider>
-  </DragDropProvider>
+  <StrictMode>
+    <TopicContextProvider>
+      <AppProviders />
+    </TopicContextProvider>
+  </StrictMode>
 );
 
 if (import.meta.hot) {

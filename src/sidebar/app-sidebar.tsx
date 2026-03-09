@@ -2,7 +2,7 @@ import type React from "react";
 import { SidebarContent, SidebarFooter, SidebarHeader, SidebarRail, Sidebar } from "../components/ui/sidebar";
 import TopicSearchField from "./topic-search-field";
 import { Button } from "@/components/ui/button";
-import { BoxIcon, SettingsIcon, UploadIcon } from "lucide-react";
+import { BoxIcon, GripVerticalIcon, SettingsIcon, UploadIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import SettingsMenu from "./settings-menu";
@@ -62,12 +62,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
 function SidebarTopicItem({ id, field,  }: { id: string, field: string }) {
   const { ref } = useDraggable({
-    id
+    id,
+    data: {
+      topic: field,
+    },
   });
 
   return (
-    <div ref={ref} className="p-2 border">{field}</div>
-  )
+    <div
+      ref={ref}
+      className="flex cursor-grab select-none items-center gap-2 border p-2 active:cursor-grabbing"
+      onMouseDown={(event) => {
+        event.preventDefault();
+      }}
+    >
+      <GripVerticalIcon className="size-4 text-muted-foreground" />
+      <span>{field}</span>
+    </div>
+  );
 }
 
 function UploadLogButton() {

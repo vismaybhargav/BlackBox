@@ -1,13 +1,12 @@
-import { Empty, EmptyHeader, EmptyMedia } from "@/components/ui/empty";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { TopicContext } from "@/context/topic-context";
+import { type AxisId, useTopicContext } from "@/context/topic-context";
+import { XIcon } from "lucide-react";
 import { useDroppable } from "@dnd-kit/react";
 import { ChartBarStacked, ChartLine } from "lucide-react";
-import { useContext } from "react";
 
 export default function TopicDropZone() {
   return (
@@ -29,19 +28,70 @@ export default function TopicDropZone() {
   );
 }
 
-export function ContinousTopicDropZone({ id }: { id: string }) {
-  const { ref } = useDroppable({
-    id,
-  });
+const dropZoneAxisMap: Record<string, AxisId> = {
+  "continous-topic-drop-zone-axis-1": "left",
+  "discrete-topic-drop-zone": "discrete",
+  "continous-topic-drop-zone-axis-2": "right",
+};
 
+function getAxisForDropZone(id: string): AxisId {
+  return dropZoneAxisMap[id] ?? "left";
+}
+
+function TopicPill({ axis, topic }: { axis: AxisId; topic: string }) {
+  const { setTopicData } = useTopicContext();
 
   return (
-    <div ref={ref} className="flex h-full bg-green-50">
-      <div className="mx-auto bg-yellow-200 align-middle">
-        {id === "continous-topic-drop-zone-axis-1" ? (
-          <h1>Left Axis</h1>
+    <span className="inline-flex items-center gap-1 rounded-md border bg-background px-2 py-1 text-sm">
+      <span>{topic}</span>
+      <button
+        type="button"
+        className="rounded-sm p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        onClick={() => {
+          setTopicData((currentTopicData) =>
+            currentTopicData.map((entry) =>
+              entry.axis === axis
+                ? {
+                    ...entry,
+                    topics: entry.topics.filter((value) => value !== topic),
+                  }
+                : entry,
+            ),
+          );
+        }}
+        aria-label={`Remove ${topic} from ${axis} axis`}
+      >
+        <XIcon className="size-3" />
+      </button>
+    </span>
+  );
+}
+
+export function ContinousTopicDropZone({ id }: { id: string }) {
+  const axis = getAxisForDropZone(id);
+  const { topicData } = useTopicContext();
+  const topics = topicData.find((entry) => entry.axis === axis)?.topics ?? [];
+  const { ref, isDropTarget } = useDroppable({
+    id,
+    data: { axis },
+  });
+
+  return (
+    <div
+      ref={ref}
+      className={`flex h-full flex-col gap-3 border border-dashed p-4 ${
+        isDropTarget ? "bg-green-100" : "bg-green-50"
+      }`}
+    >
+      <div className="flex items-center gap-2">
+        <ChartLine className="size-4" />
+        <h1>{axis === "left" ? "Left Axis" : "Right Axis"}</h1>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {topics.length > 0 ? (
+          topics.map((topic) => <TopicPill key={topic} axis={axis} topic={topic} />)
         ) : (
-          <h1>Right Axis</h1>
+          <p className="text-sm text-muted-foreground">Drop topics here.</p>
         )}
       </div>
     </div>
@@ -49,9 +99,34 @@ export function ContinousTopicDropZone({ id }: { id: string }) {
 }
 
 export function DiscreteTopicDropZone({ id }: { id: string }) {
-  const { ref } = useDroppable({
+  const axis = getAxisForDropZone(id);
+  const { topicData } = useTopicContext();
+  const topics = topicData.find((entry) => entry.axis === axis)?.topics ?? [];
+  const { ref, isDropTarget } = useDroppable({
     id,
+    data: { axis },
   });
 
-  return <div ref={ref} className="flex h-full bg-secondary"></div>;
+  return (
+    <div
+      ref={ref}
+      className={`flex h-full flex-col gap-3 border border-dashed p-4 ${
+        isDropTarget ? "bg-secondary/80" : "bg-secondary"
+      }`}
+    >
+      <div className="flex items-center gap-2">
+        <ChartBarStacked className="size-4" />
+        <h1>Discrete Axis</h1>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {topics.length > 0 ? (
+          topics.map((topic) => <TopicPill key={topic} axis={axis} topic={topic} />)
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Drop the X-axis topic here.
+          </p>
+        )}
+      </div>
+    </div>
+  );
 }

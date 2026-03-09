@@ -99,6 +99,8 @@ export default function App() {
     const xTopic = discreteAxis?.topics[0] ?? "timeMillis";
     const leftTopics = leftAxis?.topics ?? [];
     const rightTopics = rightAxis?.topics ?? [];
+    const hasXData = chartData[0]?.length > 0;
+    const hasAnyYTopics = leftTopics.length > 0 || rightTopics.length > 0;
     const palette = [
       "#ef4444",
       "#3b82f6",
@@ -119,6 +121,12 @@ export default function App() {
       series: [
         {
           label: xTopic,
+          ...(!hasXData
+            ? {
+                values: (_u: uPlot, splits: number[]) =>
+                  splits.map((value) => `${value}`),
+              }
+            : {}),
         },
         ...leftTopics.map((topic, index) => ({
           show: true,
@@ -136,25 +144,30 @@ export default function App() {
         })),
       ],
       axes: [
-        {
-          label: xTopic,
-        },
+        {},
         {
           scale: "y",
           side: 3,
-          label: leftTopics.join(", "),
         },
         {
           scale: "y2",
           side: 1,
-          label: rightTopics.join(", "),
+          show: rightTopics.length > 0,
           grid: { show: false },
         },
       ],
       scales: {
         x: {
           time: false,
+          auto: hasXData,
+          range: hasXData ? undefined : [0, 10],
         },
+        y: hasAnyYTopics
+          ? {}
+          : {
+              auto: false,
+              range: [0, 1],
+            },
       },
     };
   }, [topicData]);
@@ -165,7 +178,6 @@ export default function App() {
         <AppSidebar />
         <ResizablePanelGroup orientation="vertical" className="w-full">
           <ResizablePanel defaultSize="75%" className="min-h-0" minSize="30%">
-            {/* <UplotReact options={options} data={chartData}></UplotReact> */}
             <div className="h-full min-h-0 w-full">
               <ResponsivePlot options={options} data={chartData} />
             </div>

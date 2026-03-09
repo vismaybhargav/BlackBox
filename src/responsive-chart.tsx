@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import UplotReact from "uplot-react";
 
 // Small helper to avoid calling setSize too frequently while dragging panes
@@ -24,11 +24,19 @@ export default function ResponsivePlot(
 ) {
     const containerRef = useRef<HTMLDivElement>(null);
     const uplotRef = useRef<uPlot>(null);
-    const [mountedOptions, setMountedOptions] = useState<uPlot.Options>(() => ({
-        ...options,
+    const [size, setSize] = useState(() => ({
         width: options.width ?? 800,
         height: options.height ?? 600,
     }));
+
+    const plotOptions = useMemo(
+        () => ({
+            ...options,
+            width: size.width,
+            height: size.height,
+        }),
+        [options, size.height, size.width],
+    );
 
     const plotKey = useMemo(() => JSON.stringify({
         series: options.series?.map((series) => ({
@@ -40,15 +48,6 @@ export default function ResponsivePlot(
         dataLength: data.length,
     }), [data.length, options.axes, options.series]);
 
-    useEffect(() => {
-        setMountedOptions((prevOptions) => ({
-            ...prevOptions,
-            ...options,
-            width: prevOptions.width,
-            height: prevOptions.height,
-        }));
-    }, [options]);
-
     useLayoutEffect(() => {
         const el = containerRef.current;
         if (!el) return;
@@ -59,11 +58,16 @@ export default function ResponsivePlot(
 
             const rect = el.getBoundingClientRect();
             const w = Math.max(0, Math.floor(rect.width));
-            const h = Math.max(0, Math.floor(rect.height));
+            const h = Math.max(0, Math.floor(rect.height) - 50);
 
             if (w === plot.width && h === plot.height) return;
             
-            plot.setSize({ width: w, height: h - 50 });
+            plot.setSize({ width: w, height: h });
+            setSize((currentSize) =>
+                currentSize.width === w && currentSize.height === h
+                    ? currentSize
+                    : { width: w, height: h },
+            );
         });
 
         resizeToContainer();
@@ -83,14 +87,21 @@ export default function ResponsivePlot(
         <div ref={containerRef} className="w-full h-full min-h-0">
             <UplotReact 
                 key={plotKey}
-                options={mountedOptions} 
+                options={plotOptions} 
                 data={data}
                 onCreate={(plot) => {
                     uplotRef.current = plot;
                     const el = containerRef.current;
                     if (el) {
                         const rect = el.getBoundingClientRect();
-                        plot.setSize({ width: Math.floor(rect.width), height: Math.floor(rect.height) });
+                        const width = Math.max(0, Math.floor(rect.width));
+                        const height = Math.max(0, Math.floor(rect.height) - 50);
+                        plot.setSize({ width, height });
+                        setSize((currentSize) =>
+                            currentSize.width === width && currentSize.height === height
+                                ? currentSize
+                                : { width, height },
+                        );
                     }
                 }}
                 onDelete={() => {

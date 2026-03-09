@@ -63,6 +63,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 function SidebarTopicItem({ id, field,  }: { id: string, field: string }) {
   const { ref } = useDraggable({
     id,
+    feedback: "clone",
     data: {
       topic: field,
     },
@@ -71,13 +72,15 @@ function SidebarTopicItem({ id, field,  }: { id: string, field: string }) {
   return (
     <div
       ref={ref}
-      className="flex cursor-grab select-none items-center gap-2 border p-2 active:cursor-grabbing"
+      className="cursor-grab active:cursor-grabbing"
       onMouseDown={(event) => {
         event.preventDefault();
       }}
     >
-      <GripVerticalIcon className="size-4 text-muted-foreground" />
-      <span>{field}</span>
+      <div className="flex select-none items-center gap-2 rounded-md border bg-background px-3 py-2 shadow-sm">
+        <GripVerticalIcon className="size-4 text-muted-foreground" />
+        <span>{field}</span>
+      </div>
     </div>
   );
 }

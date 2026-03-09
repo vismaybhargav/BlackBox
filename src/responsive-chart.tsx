@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import UplotReact from "uplot-react";
 
 // Small helper to avoid calling setSize too frequently while dragging panes
@@ -24,16 +24,11 @@ export default function ResponsivePlot(
 ) {
     const containerRef = useRef<HTMLDivElement>(null);
     const uplotRef = useRef<uPlot>(null);
-    const [plotSize, setPlotSize] = useState(() => ({
+    const [mountedOptions, setMountedOptions] = useState<uPlot.Options>(() => ({
+        ...options,
         width: options.width ?? 800,
         height: options.height ?? 600,
     }));
-
-    const mountedOptions = useMemo<uPlot.Options>(() => ({
-        ...options,
-        width: plotSize.width,
-        height: plotSize.height,
-    }), [options, plotSize.height, plotSize.width]);
 
     const plotKey = useMemo(() => JSON.stringify({
         series: options.series?.map((series) => ({
@@ -44,6 +39,15 @@ export default function ResponsivePlot(
         axes: options.axes?.map((axis) => axis.label ?? axis.scale ?? null),
         dataLength: data.length,
     }), [data.length, options.axes, options.series]);
+
+    useEffect(() => {
+        setMountedOptions((prevOptions) => ({
+            ...prevOptions,
+            ...options,
+            width: prevOptions.width,
+            height: prevOptions.height,
+        }));
+    }, [options]);
 
     useLayoutEffect(() => {
         const el = containerRef.current;
@@ -57,21 +61,9 @@ export default function ResponsivePlot(
             const w = Math.max(0, Math.floor(rect.width));
             const h = Math.max(0, Math.floor(rect.height));
 
-            if (w === plot.width && h - 50 === plot.height) return;
-             
-            setPlotSize((currentSize) => {
-                const nextSize = { width: w, height: Math.max(0, h - 50) };
-
-                if (
-                    currentSize.width === nextSize.width &&
-                    currentSize.height === nextSize.height
-                ) {
-                    return currentSize;
-                }
-
-                plot.setSize(nextSize);
-                return nextSize;
-            });
+            if (w === plot.width && h === plot.height) return;
+            
+            plot.setSize({ width: w, height: h - 50 });
         });
 
         resizeToContainer();
@@ -98,12 +90,7 @@ export default function ResponsivePlot(
                     const el = containerRef.current;
                     if (el) {
                         const rect = el.getBoundingClientRect();
-                        const nextSize = {
-                            width: Math.floor(rect.width),
-                            height: Math.max(0, Math.floor(rect.height) - 50),
-                        };
-                        setPlotSize(nextSize);
-                        plot.setSize(nextSize);
+                        plot.setSize({ width: Math.floor(rect.width), height: Math.floor(rect.height) });
                     }
                 }}
                 onDelete={() => {

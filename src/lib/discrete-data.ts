@@ -196,5 +196,5 @@ export function getCurrentDiscreteValue(
 }
 
 export function getXValues(rows: DataRow[], xTopic: string): number[] {
-  return extractAxisData(rows, xTopic);
+  return extractAxisData(rows, xTopic, "number");
 }

@@ -151,7 +151,7 @@ export default function App() {
 
     return [
       xValues,
-      ...plottedTopics.map((topic) => extractAxisData(rows, topic)),
+      ...plottedTopics.map((topic) => extractAxisData(rows, topic, "number")),
     ];
   }, [leftTopics, rightTopics, rows, xValues]);
 
@@ -232,6 +232,7 @@ export default function App() {
 
   const continuousOptions = useMemo((): uPlot.Options => {
     const hasAnyYTopics = leftTopics.length > 0 || rightTopics.length > 0;
+    const showContinuousXAxis = discreteTopics.length === 0;
 
     return {
       width: 1600,
@@ -289,9 +290,20 @@ export default function App() {
       ],
       axes: [
         {
-          show: false,
+          size: showContinuousXAxis ? 34 : 22,
+          stroke: showContinuousXAxis
+            ? "rgba(100, 116, 139, 0.8)"
+            : "rgba(0, 0, 0, 0)",
+          ticks: {
+            show: showContinuousXAxis,
+            stroke: showContinuousXAxis
+              ? "rgba(100, 116, 139, 0.8)"
+              : "rgba(0, 0, 0, 0)",
+          },
+          values: showContinuousXAxis ? undefined : () => [],
           grid: {
             show: true,
+            stroke: "rgba(148, 163, 184, 0.28)",
           },
         },
         {
@@ -319,14 +331,14 @@ export default function App() {
             },
       },
     };
-  }, [hasXData, leftTopics, rightTopics, syncXScale]);
+  }, [discreteTopics.length, hasXData, leftTopics, rightTopics, syncXScale]);
 
   const discretePlotHeight = useMemo(() => {
     if (discreteTopics.length === 0) {
       return 0;
     }
 
-    return Math.max(76, Math.min(48 + discreteTopics.length * 40, 240));
+    return Math.max(104, Math.min(72 + discreteTopics.length * 40, 268));
   }, [discreteTopics.length]);
 
   const discreteOptions = useMemo((): uPlot.Options => {
@@ -371,8 +383,15 @@ export default function App() {
       ],
       axes: [
         {
+          size: 34,
+          stroke: "rgba(100, 116, 139, 0.8)",
+          ticks: {
+            show: true,
+            stroke: "rgba(100, 116, 139, 0.8)",
+          },
           grid: {
             show: true,
+            stroke: "rgba(148, 163, 184, 0.28)",
           },
         },
         {

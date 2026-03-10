@@ -14,6 +14,7 @@ import {
 import TopicDropZone from "./logged-value-holder/droppable-area";
 import ResponsivePlot from "./responsive-chart";
 import { useTopicContext } from "./context/topic-context";
+import { extractAxisData } from "./lib/data-analyzation";
 
 export default function App() {
   const { data } = useDataContext();
@@ -90,7 +91,6 @@ export default function App() {
       },
       series: [
         {
-          label: xTopic,
           ...(!hasXData
             ? {
                 values: (_u: uPlot, splits: number[]) =>
@@ -163,7 +163,3 @@ export default function App() {
     </SidebarProvider>
   );
 }
-function extractAxisData(rows: Record<string, unknown>[], xTopic: string): uPlot.TypedArray | number[] {
-  throw new Error("Function not implemented.");
-}
-

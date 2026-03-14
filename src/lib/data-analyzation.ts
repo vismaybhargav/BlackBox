@@ -1,5 +1,40 @@
 type AxisDataType = "auto" | "number" | "string";
 
+function coerceNumericValue(value: unknown): number {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : NaN;
+  }
+
+  if (typeof value !== "string") {
+    return NaN;
+  }
+
+  const trimmed = value.trim();
+  if (trimmed === "") {
+    return NaN;
+  }
+
+  const parsedValue = Number(trimmed);
+  if (!Number.isNaN(parsedValue)) {
+    return parsedValue;
+  }
+
+  const normalizedValue = trimmed.replaceAll(",", "");
+  if (normalizedValue !== trimmed) {
+    const parsedNormalizedValue = Number(normalizedValue);
+    if (!Number.isNaN(parsedNormalizedValue)) {
+      return parsedNormalizedValue;
+    }
+  }
+
+  const parsedTimestamp = Date.parse(trimmed);
+  if (!Number.isNaN(parsedTimestamp)) {
+    return parsedTimestamp;
+  }
+
+  return NaN;
+}
+
 export function extractAxisData(
   data: Array<Record<string, unknown>>,
   key: string,
@@ -51,15 +86,9 @@ export function extractAxisData(
         return "";
       }
 
-      if (typeof value === "number") {
-        return value;
-      }
-
-      if (typeof value === "string" && value.trim() !== "") {
-        const parsedValue = Number(value);
-        if (!Number.isNaN(parsedValue)) {
-          return parsedValue;
-        }
+      const numericValue = coerceNumericValue(value);
+      if (!Number.isNaN(numericValue)) {
+        return numericValue;
       }
 
       console.warn(

@@ -49,6 +49,10 @@ export function normalizeDiscreteValue(value: unknown): string | null {
     return value ? "true" : "false";
   }
 
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? String(value) : null;
+  }
+
   if (typeof value === "string") {
     const trimmed = value.trim();
     if (trimmed === "") {

@@ -1,8 +1,3 @@
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
 import { type AxisId, useTopicContext } from "@/context/topic-context";
 import { cn } from "@/lib/utils";
 import { XIcon } from "lucide-react";
@@ -20,29 +15,19 @@ type TopicDropZoneProps = {
 
 export default function TopicDropZone({ topicDisplay }: TopicDropZoneProps) {
   return (
-    <div className="w-full h-full">
-      <ResizablePanelGroup orientation="horizontal">
-        <ResizablePanel defaultSize="33.33%" disabled={true}>
-          <ContinousTopicDropZone
-            id="continous-topic-drop-zone-axis-1"
-            topicDisplay={topicDisplay}
-          />
-        </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel defaultSize="33.33%" disabled={true}>
-          <DiscreteTopicDropZone
-            id="discrete-topic-drop-zone"
-            topicDisplay={topicDisplay}
-          />
-        </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel defaultSize="33.33%" disabled={true}>
-          <ContinousTopicDropZone
-            id="continous-topic-drop-zone-axis-2"
-            topicDisplay={topicDisplay}
-          />
-        </ResizablePanel>
-      </ResizablePanelGroup>
+    <div className="grid h-full w-full gap-3 p-3 md:grid-cols-3">
+      <ContinousTopicDropZone
+        id="continous-topic-drop-zone-axis-1"
+        topicDisplay={topicDisplay}
+      />
+      <DiscreteTopicDropZone
+        id="discrete-topic-drop-zone"
+        topicDisplay={topicDisplay}
+      />
+      <ContinousTopicDropZone
+        id="continous-topic-drop-zone-axis-2"
+        topicDisplay={topicDisplay}
+      />
     </div>
   );
 }

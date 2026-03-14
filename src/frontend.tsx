@@ -18,6 +18,8 @@ import {
   defaultTopicData,
   useTopicContext,
 } from "./context/topic-context";
+import { SpeedInsights } from "@vercel/speed-insights/react"
+import { Analytics } from "@vercel/analytics/react";
 
 function AppProviders() {
   const { setTopicData } = useTopicContext();
@@ -67,6 +69,8 @@ function AppProviders() {
       <DataProvider>
         <SettingsProvider>
           <App />
+          <SpeedInsights />
+          <Analytics />
         </SettingsProvider>
       </DataProvider>
     </DragDropProvider>

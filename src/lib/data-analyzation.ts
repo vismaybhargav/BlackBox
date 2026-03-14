@@ -40,24 +40,29 @@ export function extractAxisData(
   key: string,
   type: "number",
 ): number[];
+
 export function extractAxisData(
   data: Array<Record<string, unknown>>,
   key: string,
   type: "string",
 ): string[];
+
 export function extractAxisData(
   data: Array<Record<string, unknown>>,
   key: string,
   type?: "auto",
 ): number[] | string[];
+
 export function extractAxisData(
   data: Array<Record<string, unknown>>,
   key: string,
   type: AxisDataType = "auto",
 ): number[] | string[] {
+
   const firstDefinedValue = data.find(
     (item) => item[key] !== undefined && item[key] !== null,
   )?.[key];
+
   const resolvedType =
     type === "auto" ? (typeof firstDefinedValue === "string" ? "string" : "number") : type;
 

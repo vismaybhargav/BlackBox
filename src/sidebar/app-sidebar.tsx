@@ -105,6 +105,7 @@ function UploadLogButton() {
           readString(fileContent, {
             header: true,
             dynamicTyping: true,
+            skipEmptyLines: "greedy",
             complete: (results) => {
               setData(results);
             },

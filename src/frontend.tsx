@@ -52,16 +52,11 @@ function AppProviders() {
           return entry;
         }
 
-        if (entry.axis === "discrete") {
-          return {
-            ...entry,
-            topics: [draggedTopic],
-          };
-        }
-
         return {
           ...entry,
-          topics: [...entry.topics, draggedTopic],
+          topics: entry.topics.includes(draggedTopic)
+            ? entry.topics
+            : [...entry.topics, draggedTopic],
         };
       });
     });

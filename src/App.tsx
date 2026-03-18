@@ -24,7 +24,6 @@ import {
   getDefaultXTopic,
   getRows,
   getXValues,
-  type DataRow,
   type DiscreteLane,
 } from "./lib/discrete-data";
 

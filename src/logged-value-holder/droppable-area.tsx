@@ -15,7 +15,7 @@ type TopicDropZoneProps = {
 
 export default function TopicDropZone({ topicDisplay }: TopicDropZoneProps) {
   return (
-    <div className="grid h-full w-full gap-3 p-3 md:grid-cols-3">
+    <div className="grid h-full w-full md:grid-cols-3">
       <ContinousTopicDropZone
         id="continous-topic-drop-zone-axis-1"
         topicDisplay={topicDisplay}

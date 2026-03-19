@@ -36,6 +36,63 @@ const CONTINUOUS_PALETTE = [
   "#ec4899",
 ];
 const SYNC_KEY = "blackbox-sync";
+const AXIS_FONT = "12px system-ui, sans-serif";
+
+function formatNumericAxisValue(value: number): string {
+  if (!Number.isFinite(value)) {
+    return "";
+  }
+
+  const absoluteValue = Math.abs(value);
+
+  if (absoluteValue >= 100_000 || (absoluteValue > 0 && absoluteValue < 0.01)) {
+    return value.toExponential(2);
+  }
+
+  if (absoluteValue >= 1_000) {
+    return value.toFixed(0);
+  }
+
+  if (absoluteValue >= 10) {
+    return value.toFixed(1).replace(/\.0$/, "");
+  }
+
+  return value.toFixed(2).replace(/\.?0+$/, "");
+}
+
+let axisMeasurementContext: CanvasRenderingContext2D | null = null;
+
+function measureAxisLabelWidth(labels: string[], minimumWidth = 0): number {
+  if (typeof document === "undefined") {
+    return minimumWidth;
+  }
+
+  if (!axisMeasurementContext) {
+    axisMeasurementContext = document.createElement("canvas").getContext("2d");
+  }
+
+  const context = axisMeasurementContext;
+  if (!context) {
+    return minimumWidth;
+  }
+
+  context.font = AXIS_FONT;
+
+  const measuredWidth = labels.reduce((maxWidth, label) => {
+    const nextWidth = context.measureText(label).width;
+    return Math.max(maxWidth, nextWidth);
+  }, 0);
+
+  return Math.max(minimumWidth, Math.ceil(measuredWidth) + 20);
+}
+
+function estimateNumericAxisWidth(values: Array<number | null | undefined>): number {
+  const labels = values
+    .filter((value): value is number => Number.isFinite(value))
+    .map((value) => formatNumericAxisValue(value));
+
+  return measureAxisLabelWidth(labels, 44);
+}
 
 function createDiscreteBandPlugin(
   lanes: DiscreteLane[],
@@ -163,6 +220,28 @@ export default function App() {
     () => buildDiscretePlotData(xValues, discreteTopics.length),
     [discreteTopics.length, xValues],
   );
+
+  const sharedAxisSizes = useMemo(() => {
+    const leftAxisValues = continuousData
+      .slice(1, 1 + leftTopics.length)
+      .flatMap((series) => series as Array<number | null | undefined>);
+    const rightAxisValues = continuousData
+      .slice(1 + leftTopics.length)
+      .flatMap((series) => series as Array<number | null | undefined>);
+
+    const discreteLeftAxisWidth =
+      discreteTopics.length > 0
+        ? measureAxisLabelWidth(discreteTopics, 72)
+        : 0;
+    const continuousLeftAxisWidth = estimateNumericAxisWidth(leftAxisValues);
+    const continuousRightAxisWidth =
+      rightTopics.length > 0 ? estimateNumericAxisWidth(rightAxisValues) : 0;
+
+    return {
+      left: Math.max(continuousLeftAxisWidth, discreteLeftAxisWidth),
+      right: continuousRightAxisWidth,
+    };
+  }, [continuousData, discreteTopics, leftTopics.length, rightTopics.length]);
 
   const currentRowIndex = useMemo(
     () => getCurrentRowIndex(cursorIndex, rows.length),
@@ -308,11 +387,19 @@ export default function App() {
         {
           scale: "y",
           side: 3,
+          size: sharedAxisSizes.left,
+          font: AXIS_FONT,
+          values: (_plot: uPlot, splits: number[]) =>
+            splits.map((value) => formatNumericAxisValue(value)),
         },
         {
           scale: "y2",
           side: 1,
           show: rightTopics.length > 0,
+          size: sharedAxisSizes.right,
+          font: AXIS_FONT,
+          values: (_plot: uPlot, splits: number[]) =>
+            splits.map((value) => formatNumericAxisValue(value)),
           grid: { show: false },
         },
       ],
@@ -330,7 +417,15 @@ export default function App() {
             },
       },
     };
-  }, [discreteTopics.length, hasXData, leftTopics, rightTopics, syncXScale]);
+  }, [
+    discreteTopics.length,
+    hasXData,
+    leftTopics,
+    rightTopics,
+    sharedAxisSizes.left,
+    sharedAxisSizes.right,
+    syncXScale,
+  ]);
 
   const discretePlotHeight = useMemo(() => {
     if (discreteTopics.length === 0) {
@@ -395,7 +490,26 @@ export default function App() {
         },
         {
           scale: "y",
-          show: false,
+          side: 3,
+          size: sharedAxisSizes.left,
+          font: AXIS_FONT,
+          splits: () => discreteTopics.map((_, index) => index + 1),
+          values: (_plot: uPlot, splits: number[]) =>
+            splits.map((value) => discreteTopics[Math.round(value) - 1] ?? ""),
+          grid: {
+            show: false,
+          },
+        },
+        {
+          scale: "yPad",
+          side: 1,
+          show: rightTopics.length > 0,
+          size: sharedAxisSizes.right,
+          stroke: "rgba(0, 0, 0, 0)",
+          ticks: {
+            show: false,
+          },
+          values: () => [],
           grid: {
             show: false,
           },
@@ -411,6 +525,10 @@ export default function App() {
           auto: false,
           range: [0.5, laneCount + 0.5],
         },
+        yPad: {
+          auto: false,
+          range: [0, 1],
+        },
       },
     };
   }, [
@@ -418,6 +536,9 @@ export default function App() {
     discretePlotHeight,
     discreteTopics,
     hasXData,
+    rightTopics.length,
+    sharedAxisSizes.left,
+    sharedAxisSizes.right,
     syncXScale,
     xValues,
   ]);

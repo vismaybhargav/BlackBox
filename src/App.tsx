@@ -37,6 +37,25 @@ const CONTINUOUS_PALETTE = [
 ];
 const SYNC_KEY = "blackbox-sync";
 const AXIS_FONT = "12px system-ui, sans-serif";
+const PREDICTED_APOGEE_TOPIC = "predictedApogee:m";
+const PREDICTED_APOGEE_MAX = 3000;
+
+function getDisplayedContinuousValue(topic: string, value: unknown): unknown {
+  if (topic === PREDICTED_APOGEE_TOPIC) {
+    const numericValue =
+      typeof value === "number"
+        ? value
+        : typeof value === "string"
+          ? Number(value)
+          : NaN;
+
+    if (Number.isFinite(numericValue) && numericValue > PREDICTED_APOGEE_MAX) {
+      return 0;
+    }
+  }
+
+  return value;
+}
 
 function formatNumericAxisValue(value: number): string {
   if (!Number.isFinite(value)) {
@@ -207,7 +226,11 @@ export default function App() {
 
     return [
       xValues,
-      ...plottedTopics.map((topic) => extractAxisData(rows, topic, "number")),
+      ...plottedTopics.map((topic) =>
+        extractAxisData(rows, topic, "number").map((value) =>
+          getDisplayedContinuousValue(topic, value) as number,
+        ),
+      ),
     ];
   }, [leftTopics, rightTopics, rows, xValues]);
 
@@ -253,7 +276,9 @@ export default function App() {
 
     [...leftTopics, ...rightTopics].forEach((topic, index) => {
       const value =
-        currentRowIndex !== null ? rows[currentRowIndex]?.[topic] : undefined;
+        currentRowIndex !== null
+          ? getDisplayedContinuousValue(topic, rows[currentRowIndex]?.[topic])
+          : undefined;
       display[topic] = {
         value: formatTopicValue(value),
         accentColor:
